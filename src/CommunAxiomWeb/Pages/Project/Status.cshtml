@@ -1,0 +1,56 @@
+﻿
+@page
+@model SinglePage<CommunAxiomWeb.Models.StatusPage>
+@{ ViewData["Title"] = !string.IsNullOrEmpty(Model.Data.MetaTitle) ? Model.Data.MetaTitle : Model.Data.Title;
+                var hasImage = Model.Data.PrimaryImage.HasValue; }
+@section head {
+    @WebApp.MetaTags(Model.Data)
+}
+
+<header @(hasImage ? "class=has-image" : "") @(hasImage ? $"style=background-image:url({ @Url.Content(WebApp.Media.ResizeImage(Model.Data.PrimaryImage, 1920, 400)) })" : "")>
+    <div class="dimmer"></div>
+    <div class="container text-center">
+        <h1>@Model.Data.Title</h1>
+        @if (!string.IsNullOrWhiteSpace(Model.Data.Excerpt))
+        {
+<div class="row justify-content-center">
+    <div class="col-lg-8 lead">
+        @Html.Raw(Model.Data.Excerpt)
+    </div>
+</div>}
+    </div>
+</header>
+
+<main>
+    <div style="margin-left: 120px; margin-right: 120px;">
+        <div  id="myGraph">
+        </div>
+    </div>
+    <script src="https://unpkg.com/d3@7.1.1/dist/d3.js" ></script>
+    <script src="//unpkg.com/timelines-chart"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        axios.get("/project/epics").then((data)=>{
+            let d = data.data;
+            let graph = document.getElementById("myGraph");
+            TimelinesChart()(graph)
+            .zScaleLabel('Status')
+            .zQualitative(true)
+            .timeFormat("%Y-%m")
+            .maxLineHeight(24)
+            .width(graph.offsetWidth)
+            .rightMargin(300)
+            .leftMargin(200)
+            .zColorScale(d3.scaleOrdinal(["To Do", "In Progress", "Done"], ["#8aafb4", "#165089", "#239854"]))
+            .data(d);
+        });
+    </script>
+        @foreach (var block in Model.Data.Blocks)
+        {
+    <div class="block @block.CssName()">
+        <div class="container">
+            @Html.DisplayFor(m => block, block.GetType().Name)
+        </div>
+    </div>}
+</main>
+

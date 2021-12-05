@@ -1,0 +1,51 @@
+header {
+    background-position: 50% 50%;
+    background-size: cover;
+    position: relative;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    //margin-top: 4.5rem;;
+    .container {
+        position: relative;
+    }
+
+    h1 {
+        /* Extra small devices (phones, less than 768px) */
+        font-size: 2.5rem;
+        /* Small devices (tablets, 768px and up) */
+        @media (min-width: 768px) {
+            font-size: 2.8rem;
+        }
+        /* Medium devices (desktops, 992px and up) */
+        @media (min-width: 992px) {
+            font-size: 3.2rem;
+        }
+        /* Large devices (large desktops, 1200px and up) */
+        @media (min-width: 1200px) {
+            font-size: 3.4rem;
+        }
+
+        text-transform: uppercase;
+    }
+
+    .lead {
+        font-size: 1.35rem;
+    }
+
+    &.has-image {
+        color: #eee;
+        text-shadow: 1px 1px 1px rgba(0,0,0,.15);
+        padding-top: 7rem;
+        padding-bottom: 7rem;
+
+        .dimmer {
+            background: #000;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: .45;
+        }
+    }
+}

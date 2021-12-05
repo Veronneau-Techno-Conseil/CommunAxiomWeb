@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Roboto:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+body {
+    font-family: 'Libre Baskerville',serif;
+    padding-top: 4.5rem;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-family: Roboto,sans-serif;
+}
+
+figure {
+    color: #14222E;
+    blockquote {
+        color: #14222E;
+        background-color: #F5EFE5;
+        font-size: 1.5rem;
+        font-weight: 300;
+        margin: 3rem auto;
+        margin-bottom: 1rem;
+        font-size: 1.25rem;
+        margin-top: 1rem;
+        width: 80%;
+    }
+    .blockquote-footer{
+        color: #14222E;
+    }
+    width: 80%;
+}
+.navbar-brand {
+    small {
+        font-family: Lato,sans-serif;
+        font-size: 75%;
+        font-weight: 400;
+        margin-left: .5rem;
+    }
+}
+.lead {
+    font-size: 1.2rem;
+}

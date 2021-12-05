@@ -1,0 +1,25 @@
+@model CommunAxiomWeb.Extend.ImageSegmentBlock
+
+@if (Model.SetImageRight.Value)
+{
+    <div class="row text-segment">
+        <div class="col-md-9 col-sm-10 col-10">
+            <h1>@Model.Title</h1>
+            <p>@Html.Raw(Model.Body)</p>
+        </div>
+        <div class="col-md-3 col-sm-2 col-2">
+            <img src="@Url.Content(WebApp.Media.ResizeImage(Model.ImageField, 1110))" />
+        </div>
+    </div>
+}
+else{
+    <div class="row text-segment">
+        <div class="col-md-3 col-sm-2 col-2">
+            <img src="@Url.Content(WebApp.Media.ResizeImage(Model.ImageField, 1110))" />
+        </div>
+        <div class="col-md-9 col-sm-10 col-10">
+            <h1>@Model.Title</h1>
+            <p>@Html.Raw(Model.Body)</p>
+        </div>
+    </div>
+}

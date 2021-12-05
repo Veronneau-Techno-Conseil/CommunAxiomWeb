@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+   
+    <PackageReference Include="Atlassian.SDK" Version="12.4.0" />
+   
+    <PackageReference Include="AWSSDK.Core" Version="3.7.5.2" />
+   
+    <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.1.94" />
+   
+    <PackageReference Include="Flagscript.PiranhaCms.Aws.S3Storage.Unofficial" Version="10.0.0-alpha" />
+   
+	<PackageReference Include="Piranha" Version="10.0.0" />
+	<PackageReference Include="Piranha.AspNetCore" Version="10.0.0" />
+	<PackageReference Include="Piranha.AspNetCore.Identity.SQLite" Version="10.0.0" />
+	<PackageReference Include="Piranha.AttributeBuilder" Version="10.0.0" />
+	<PackageReference Include="Piranha.Data.EF.SQLite" Version="10.0.0" />
+	<PackageReference Include="Piranha.ImageSharp" Version="10.0.0" />
+	<PackageReference Include="Piranha.Local.FileStorage" Version="10.0.0" />
+	<PackageReference Include="Piranha.Manager" Version="10.0.0" />
+	<PackageReference Include="Piranha.Manager.LocalAuth" Version="10.0.0" />
+	<PackageReference Include="Piranha.Manager.TinyMCE" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="cert.pem">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="key.pem">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="localhost.key">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="localhost.pem">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="localhost.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="piranha.db">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
