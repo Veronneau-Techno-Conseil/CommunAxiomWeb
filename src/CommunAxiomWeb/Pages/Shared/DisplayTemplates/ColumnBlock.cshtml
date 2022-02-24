@@ -1,9 +1,10 @@
 @model Piranha.Extend.Blocks.ColumnBlock
 
-<div class="row">
+
+<div class="columns">
     @for (var n = 0; n < Model.Items.Count; n++)
     {
-        <div class="col-md">
+        <div class="column">
             @Html.DisplayFor(m => Model.Items[n], Model.Items[n].GetType().Name)
         </div>
     }

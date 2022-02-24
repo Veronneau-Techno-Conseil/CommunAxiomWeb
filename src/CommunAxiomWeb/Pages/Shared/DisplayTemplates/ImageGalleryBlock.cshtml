@@ -4,7 +4,7 @@
     var unique = "gallery-" + Guid.NewGuid().ToString();
 }
 
-<div id="@unique" class="carousel slide gallery-block" data-ride="carousel">
+@*<div id="@unique" class="carousel slide gallery-block" data-ride="carousel">
     <ol class="carousel-indicators">
         @for (var n = 0; n < Model.Items.Count; n++)
         {
@@ -27,4 +27,28 @@
         <span class="carousel-control-next-icon" aria-hidden="true"></span>
         <span class="sr-only">Next</span>
     </a>
+</div>*@
+
+<div id="@unique" class="glide level">
+  <div class="glide__track" data-glide-el="track">
+    <ul class="glide__slides">
+            @foreach (var item in Model.Items)
+            {
+                <li class="glide__slide level-item">
+                    <img src="@Url.Content(WebApp.Media.ResizeImage(((ImageBlock)item).Body.Media, 1100, 450))" class="d-block w-100">
+                </li>
+            }
+    </ul>
+  </div>
+   <div class="glide__bullets" data-glide-el="controls[nav]">
+        @for (var n = 0; n < Model.Items.Count; n++)
+        {
+            <button class="glide__bullet" data-glide-dir="=@n"></button>
+        }
+  </div>
 </div>
+
+<script src="~/assets/js/carousel.js"></script>
+<script>
+    carousel("#@unique");
+</script>

@@ -1,6 +1,6 @@
-@model CommunAxiomWeb.Extend.RowBlock
+                                                                 @model CommunAxiomWeb.Extend.RowBlock
 
-<div class="row">
+<div class="columns">
     @for (var n = 0; n < Model.Items.Count; n++)
     {    
         @Html.DisplayFor(m => Model.Items[n], Model.Items[n].GetType().Name)

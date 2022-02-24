@@ -1,0 +1,16 @@
+﻿@model CommunAxiomWeb.Extend.FormIOSegment
+@{
+}
+
+<script type="text/javascript">
+window.FormioConfig = {
+  after: function(instance) {
+    instance.on('change', function(changed) {
+      // This is triggered every time something on the form changes.
+      console.log(changed);
+    });
+  }
+};
+</script>
+<h1>@Model.Title</h1>
+<script src="https://cdn.form.io/formiojs/formio.embed.js?src=@(Model.FormUrl.Value)"></script>

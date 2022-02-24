@@ -1,10 +1,10 @@
 @model Piranha.Models.Comment
 
-<div class="row comment mb-4">
-    <div class="col-2">
+<div class="columns comment mb-4">
+    <div class="column is-2">
         <img class="rounded img-fluid" src="@WebApp.GetGravatarUrl(Model.Email, 160)" alt="@Model.Author">
     </div>
-    <div class="col-10">
+    <div class="column is-10">
         @if (!string.IsNullOrEmpty(Model.Url))
         {
             <h5><a href="@Model.Url" target="_blank">@Model.Author</a> - <small>@Model.Created.ToLongDateString()</small></h5>

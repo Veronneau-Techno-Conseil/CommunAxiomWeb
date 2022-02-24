@@ -1,0 +1,40 @@
+@using CommunAxiomWeb.Extend
+@model SmartAnchorBlock
+@{
+    var metadata = Model.OGMetadata;
+    var simpleLink = !Model.UseOG || Model.OGMetadata == null;
+}
+
+<div class="card">
+    <div class="card-content">
+        @if (!simpleLink)
+        {
+            <figure class="media">
+                <div class="media-left">
+                    <figure class="image is-96x96">
+                        @if (metadata.Image != null && !string.IsNullOrWhiteSpace(metadata.Image.ToString()))
+                        {
+                            <img class="rounded mb-3" src="@metadata.Image.ToString()" alt="@Model.Label.Value">
+                        }
+                    </figure>
+                </div>
+                <div class="media-content">
+                    <p class="title is-4">@metadata.Title</p>
+                    <p class="subtitle is-6">
+                        <h3>@metadata.Description</h3>
+                    </p>
+                    <p><a href="@metadata.Url.ToString()">@metadata.Url.ToString()</a></p>
+                </div>
+            </figure>
+        }
+        else
+        {
+            <a class="media" href="@Model.Url.Value">
+
+                <div class="media-content">
+                    <p class="title is-4">@Model.Label</p>
+                </div>
+            </a>
+        }
+    </div>
+</div>

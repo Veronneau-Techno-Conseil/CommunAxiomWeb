@@ -2,29 +2,58 @@
 
 body {
     font-family: 'Libre Baskerville',serif;
-    padding-top: 4.5rem;
+
 }
 h1, h2, h3, h4, h5, h6 {
     font-family: Roboto,sans-serif;
 }
 
-figure {
-    color: #14222E;
-    blockquote {
-        color: #14222E;
-        background-color: #F5EFE5;
-        font-size: 1.5rem;
-        font-weight: 300;
-        margin: 3rem auto;
-        margin-bottom: 1rem;
-        font-size: 1.25rem;
-        margin-top: 1rem;
-        width: 80%;
+h1 {
+    font-size: 2.5em;
+}
+h2 {
+    font-size: 2em;
+}
+h3 {
+    font-size: 1.5em;
+}
+h4 {
+    font-size: 1.25em;
+}
+
+
+.block.quote-block {
+    .container {
+        flex-direction: column;
+        display: flex;
+        figure {
+            align-self:center;
+            color: #14222E;
+            width: 80%;
+            display: flex;
+            flex-direction: column;
+
+            blockquote {
+                color: #14222E;
+                background-color: #F5EFE5;
+                font-size: 1.5rem;
+                font-weight: 300;
+                margin: 3rem auto;
+                margin-bottom: 1rem;
+                font-size: 1.25rem;
+                margin-top: 1rem;
+                width: 80%;
+            }
+
+            .blockquote-footer {
+                color: #14222E;
+            }
+
+            figcaption {
+                align-self: flex-start;
+            }
+        }
     }
-    .blockquote-footer{
-        color: #14222E;
-    }
-    width: 80%;
 }
 .navbar-brand {
     small {

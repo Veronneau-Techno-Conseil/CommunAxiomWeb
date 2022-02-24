@@ -1,12 +1,16 @@
-header {
+section.hero {
     background-position: 50% 50%;
     background-size: cover;
     position: relative;
     padding-top: 2rem;
-    padding-bottom: 2rem;
+    padding-bottom: 2rem; 
     //margin-top: 4.5rem;;
     .container {
         position: relative;
+    }
+
+    .title {
+        z-index: 1;
     }
 
     h1 {
@@ -30,13 +34,26 @@ header {
 
     .lead {
         font-size: 1.35rem;
+        flex-grow: 0;
+        flex-shrink: 1;
+        word-break: normal;
     }
 
     &.has-image {
-        color: #eee;
-        text-shadow: 1px 1px 1px rgba(0,0,0,.15);
-        padding-top: 7rem;
-        padding-bottom: 7rem;
+        .hero-body{
+            z-index: 1;
+            .title {
+                color: #eee;
+                text-align:center;
+                .level-item {
+                    flex-shrink:1;
+                }
+            }
+        }
+
+        text-shadow: 3px 3px 3px rgba(0,0,0,0.5);
+        padding-top: 4rem;
+        padding-bottom: 4rem;
 
         .dimmer {
             background: #000;

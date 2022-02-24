@@ -6,25 +6,28 @@
     @WebApp.MetaTags(Model.Data)
 }
 
-<header @(hasImage ? "class=has-image" : "") @(hasImage ? $"style=background-image:url({ @Url.Content(WebApp.Media.ResizeImage(Model.Data.PrimaryImage, 1920, 400)) })" : "")>
+<section class="@(hasImage ? "hero has-image" : "hero")" @(hasImage ? $"style=background-image:url({ @Url.Content(WebApp.Media.ResizeImage(Model.Data.PrimaryImage, 1920, 400)) })" : "")>
     <div class="dimmer"></div>
-    <div class="container text-center">
-        <h1>@Model.Data.Title</h1>
+    <div class="hero-body">
+        <div class="level title">
+            <h1 class="level-item">@Model.Data.Title</h1>
+        </div>
         @if (!string.IsNullOrWhiteSpace(Model.Data.Excerpt))
         {
-<div class="row justify-content-center">
-    <div class="col-lg-8 lead">
-        @Html.Raw(Model.Data.Excerpt)
+            <div class="level title">
+                <div class="level-item lead">
+                    @Html.Raw(Model.Data.Excerpt)
+                </div>
+            </div>
+        }
     </div>
-</div>}
-    </div>
-</header>
+</section>
 
 <main>
     @foreach (var block in Model.Data.Blocks)
     {
 <div class="block @block.CssName()">
-    <div class="container">
+    <div class="container" >
         @Html.DisplayFor(m => block, block.GetType().Name)
     </div>
 </div>}

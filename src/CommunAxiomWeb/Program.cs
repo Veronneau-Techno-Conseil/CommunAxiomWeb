@@ -40,18 +40,22 @@ namespace CommunAxiomWeb
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseKestrel();
-                    webBuilder.ConfigureKestrel(cfg => {
-                        cfg.ConfigureEndpointDefaults(opts =>
+                    if (config.GetValue<bool>("UseSSL"))
+                    {
+                        webBuilder.ConfigureKestrel(cfg =>
                         {
-                            var certPem = File.ReadAllText("cert.pem");
-                            var eccPem = File.ReadAllText("key.pem");
+                            cfg.ConfigureEndpointDefaults(opts =>
+                            {
+                                var certPem = File.ReadAllText("cert.pem");
+                                var eccPem = File.ReadAllText("key.pem");
 
-                            var cert = X509Certificate2.CreateFromPem(certPem, eccPem);
-                            cert = new System.Security.Cryptography.X509Certificates.X509Certificate2(
-                                cert.Export(System.Security.Cryptography.X509Certificates.X509ContentType.Pkcs12));
-                            opts.UseHttps(cert);
+                                var cert = X509Certificate2.CreateFromPem(certPem, eccPem);
+                                cert = new System.Security.Cryptography.X509Certificates.X509Certificate2(
+                                    cert.Export(System.Security.Cryptography.X509Certificates.X509ContentType.Pkcs12));
+                                opts.UseHttps(cert);
+                            });
                         });
-                    });
+                    }
                     webBuilder.UseStartup<Startup>();
                     //webBuilder.UseUrls("https://*:8443");
                 });

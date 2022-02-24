@@ -14,9 +14,10 @@
    
     <PackageReference Include="Flagscript.PiranhaCms.Aws.S3Storage.Unofficial" Version="10.0.0-alpha" />
    
+   
 	<PackageReference Include="Piranha" Version="10.0.0" />
 	<PackageReference Include="Piranha.AspNetCore" Version="10.0.0" />
-	<PackageReference Include="Piranha.AspNetCore.Identity.SQLite" Version="10.0.0" />
+	  <PackageReference Include="Piranha.AspNetCore.Identity.SQLite" Version="10.0.0" />
 	<PackageReference Include="Piranha.AttributeBuilder" Version="10.0.0" />
 	<PackageReference Include="Piranha.Data.EF.SQLite" Version="10.0.0" />
 	<PackageReference Include="Piranha.ImageSharp" Version="10.0.0" />
@@ -24,8 +25,12 @@
 	<PackageReference Include="Piranha.Manager" Version="10.0.0" />
 	<PackageReference Include="Piranha.Manager.LocalAuth" Version="10.0.0" />
 	<PackageReference Include="Piranha.Manager.TinyMCE" Version="10.0.0" />
-  </ItemGroup>
 
+  </ItemGroup>
+	<PropertyGroup>
+		<!-- Makes the TypeScript compilation task a no-op -->
+		<TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+	</PropertyGroup>
   <ItemGroup>
     <None Update="cert.pem">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -45,6 +50,14 @@
     <None Update="piranha.db">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\assets\bundle\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VirtualBrowser\VirtualBrowser.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,10 +1,68 @@
-@import "inc/general";
-@import "inc/fonts";
-@import "inc/type";
-@import "inc/buttons";
-@import "inc/cards";
-@import "inc/navbar";
-@import "inc/header";
-@import "inc/footer";
-@import "inc/blocks";
-@import "inc/posts";
+
+@charset "utf-8";
+$light-green: #4dc981;
+$dark-green: #239854;
+
+
+$black: #14222E;
+$black-bis: #14222D;
+$black-ter: #192B38;
+
+$grey-darker: #233B44;
+$grey-dark: #2b4855;
+$grey: #506D77;
+$grey-light: #8aafb4;
+$grey-lighter: #9DBFC1;
+$grey-lightest: #D6D1C9;
+
+$white-ter: hsl(0, 0%, 96%);
+$white-bis: hsl(0, 0%, 98%);
+$white: hsl(0, 0%, 100%);
+
+$orange: #E87C0D;
+$yellow: #FFAB1B;
+$green: $dark-green;
+$turquoise: $light-green;
+$cyan: #24D5C1;
+$blue: #165089;
+$purple: #A867D6;
+$red: #D35114;
+// Set your brand colors
+$brown: #757763;
+$beige-light: #D0D1CD;
+$beige-lighter: #D6D6CE;
+
+// Update Bulma's global variables
+$family-sans-serif: "Roboto", sans-serif;
+
+
+$primary: $light-green;
+$link: $dark-green;
+
+$widescreen-enabled: true;
+$fullhd-enabled: true;
+
+// Update some of Bulma's component variables
+$body-background-color: white;
+
+$control-border-width: 2px;
+$input-border-color: transparent;
+$input-shadow: none;
+
+// Import only what you need from Bulma
+@import "../../node_modules/bulma/bulma.sass";
+
+// Required Core Stylesheet
+@import "node_modules/@glidejs/glide/src/assets/sass/glide.core";
+// Optional Theme Stylesheet
+@import "node_modules/@glidejs/glide/src/assets/sass/glide.theme";
+
+@import "./inc/_type.scss";
+@import "./inc/_navbar.scss";
+@import "./inc/_header.scss";
+@import "./inc/_footer.scss";
+@import "./inc/_blocks.scss";
+
+.quote-block{
+    @extend .level
+}

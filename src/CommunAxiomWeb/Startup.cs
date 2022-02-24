@@ -14,7 +14,9 @@ using CommunAxiomWeb.Models;
 using Flagscript.PiranhaCms.Aws.S3Storage;
 using CommunAxiomWeb.Services;
 using Amazon.S3;
-
+using System;
+using System.Linq;
+using VirtualBrowser;
 namespace CommunAxiomWeb
 {
     public class Startup
@@ -35,7 +37,7 @@ namespace CommunAxiomWeb
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<JiraWorkItems>(new JiraWorkItems());
-                        
+            services.UseBrowser();
             // Service setup
             services.AddPiranha(options =>
             {
@@ -43,6 +45,12 @@ namespace CommunAxiomWeb
 
 
                 options.UseCms();
+                var descriptor = options.Services.FirstOrDefault(x => x.ServiceType == typeof(IStartupFilter) && x.ImplementationType?.Name == "PiranhaStartupFilter");
+                if (descriptor != null)
+                {
+                    options.Services.Remove(descriptor);
+                }
+                options.Services.AddTransient<IStartupFilter, Hosting.PiranhaStartupFilter>(); 
                 options.UseManager();
 
                 if (_config.GetValue<string>("StorageMode") == "local")
@@ -71,10 +79,16 @@ namespace CommunAxiomWeb
                 options.UseEF<SQLiteDb>(db => db.UseSqlite(_config.GetConnectionString("piranha")));
                 options.UseIdentityWithSeed<IdentitySQLiteDb>(db => db.UseSqlite(_config.GetConnectionString("piranha")));
 
+
                 Piranha.App.Blocks.Register<RowBlock>();
+                Piranha.App.Blocks.Register<PostRow>();
+                Piranha.App.Blocks.Register<AuthorLink>();
                 Piranha.App.Blocks.Register<ImageSegmentBlock>();
-                Piranha.App.Modules.Manager().Scripts.Add("~/assets/js/vuecomponents.js");
+                Piranha.App.Blocks.Register<SmartAnchorBlock>();
+                Piranha.App.Blocks.Register<FormIOSegment>();
                 
+                Piranha.App.Modules.Manager().Scripts.Add("~/assets/js/vuecomponents.js");
+
                 /***
                  * Here you can configure the different permissions
                  * that you want to use for securing content in the

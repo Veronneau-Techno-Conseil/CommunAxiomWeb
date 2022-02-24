@@ -50,29 +50,30 @@
             }
         };
     },
-    template: "\n" +
-        "<div class=\"media-field\" :class=\"{ empty: isEmpty }\">\n" +
-        "    <div class=\"media-picker\">\n" +
-        "        <div class=\"btn-group float-right\">\n" +
-        "            <button v-on:click.prevent=\"select\" class=\"btn btn-primary text-center\">\n" +
-        "                <i class=\"fas fa-plus\"></i>\n" +
-        "            </button>\n" +
-        "            <button v-on:click.prevent=\"remove\" class=\"btn btn-danger text-center\">\n" +
-        "                <i class=\"fas fa-times\"></i>\n" +
-        "            </button>\n" +
-        "        </div>\n" +
-        "        <div class=\"card text-left\">\n" +
-        "            <div class=\"card-body\" v-if=\"isEmpty\">\n" +
-        "                <span v-if=\"meta.placeholder != null\" class=\"text-secondary\">{{ meta.placeholder }}</span>\n" +
-        "                <span v-if=\"meta.placeholder == null\" class=\"text-secondary\">&nbsp;</span>\n" +
-        "            </div>\n" +
-        "            <div class=\"card-body\" v-else-if=\"model.media.title != null\">\n" +
-        "                <a href=\"#\" v-on:click.prevent=\"piranha.preview.open(model.id)\">{{ model.media.title }} ({{ model.media.filename }})</a>\n" +
-        "            </div>\n" +
-        "            <div class=\"card-body\" v-else>\n" +
-        "                <a href=\"#\" v-on:click.prevent=\"piranha.preview.open(model.id)\">{{ model.media.filename }}</a>\n" +
-        "            </div>\n" +
-        "        </div>\n" +
-        "    </div>\n" +
-        "</div>\n"
+    template: `
+        <div class="media-field" :class="{ empty: isEmpty }">
+            <div class="media-picker">
+                <div class="btn-group float-right">
+                    <button v-on:click.prevent="select" class="btn btn-primary text-center">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button v-on:click.prevent="remove" class="btn btn-danger text-center">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="card text-left">
+                    <div class="card-body" v-if="isEmpty">
+                        <span v-if="meta.placeholder != null" class="text-secondary">{{ meta.placeholder }}</span>
+                        <span v-if="meta.placeholder == null" class="text-secondary">&nbsp;</span>
+                    </div>
+                    <div class="card-body" v-else-if="model.media.title != null">
+                        <a href="#" v-on:click.prevent="piranha.preview.open(model.id)">{{ model.media.title }} ({{ model.media.filename }})</a>
+                    </div>
+                    <div class="card-body" v-else>
+                        <a href="#" v-on:click.prevent="piranha.preview.open(model.id)">{{ model.media.filename }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+`
 });

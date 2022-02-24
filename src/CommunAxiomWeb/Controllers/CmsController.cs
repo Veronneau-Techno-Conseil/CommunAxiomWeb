@@ -51,6 +51,33 @@ namespace CommunAxiomWeb.Controllers
             }
         }
 
+        /// <summary>
+        /// Gets the blog archive with the given id.
+        /// </summary>
+        /// <param name="id">The unique page id</param>
+        /// <param name="year">The optional year</param>
+        /// <param name="month">The optional month</param>
+        /// <param name="page">The optional page</param>
+        /// <param name="category">The optional category</param>
+        /// <param name="tag">The optional tag</param>
+        /// <param name="draft">If a draft is requested</param>
+        [Route("authorarchive")]
+        public async Task<IActionResult> AuthorArchive(Guid id, int? year = null, int? month = null, int? page = null,
+            Guid? category = null, Guid? tag = null, bool draft = false)
+        {
+            try
+            {
+                var model = await _loader.GetPageAsync<AuthorArchive>(id, HttpContext.User, draft);
+                model.Archive = await _api.Archives.GetByIdAsync<AuthorPost>(id, page, category, tag, year, month);
+
+                return View(model);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+        }
+
 
 
         /// <summary>
@@ -69,6 +96,47 @@ namespace CommunAxiomWeb.Controllers
                 {
                     model.Comments = await _api.Posts.GetAllCommentsAsync(model.Id, true);
                 }
+                return View(model);
+            }
+            catch
+            {
+                return Unauthorized();
+            }
+        }
+
+        /// <summary>
+        /// Gets the post with the given id.
+        /// </summary>
+        /// <param name="id">The unique post id</param>
+        /// <param name="draft">If a draft is requested</param>
+        [Route("authorpost")]
+        public async Task<IActionResult> AuthorPost(Guid id, bool draft = false)
+        {
+            try
+            {
+                var model = await _loader.GetPostAsync<AuthorPost>(id, HttpContext.User, draft);
+
+                return View(model);
+            }
+            catch
+            {
+                return Unauthorized();
+            }
+        }
+
+
+        /// <summary>
+        /// Gets the post with the given id.
+        /// </summary>
+        /// <param name="id">The unique post id</param>
+        /// <param name="draft">If a draft is requested</param>
+        [Route("authorlink")]
+        public async Task<IActionResult> AuthorLink(Guid id, bool draft = false)
+        {
+            try
+            {
+                var model = await _loader.GetPostAsync<AuthorPost>(id, HttpContext.User, draft);
+
                 return View(model);
             }
             catch

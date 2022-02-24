@@ -1,0 +1,113 @@
+@model AuthorArchive
+@{
+    ViewData["Title"] = !string.IsNullOrEmpty(Model.MetaTitle) ? Model.MetaTitle : Model.Title;
+    var hasImage = Model.PrimaryImage.HasValue;
+
+    var posts = Model.Archive.Posts.Count;
+}
+@section head {
+    @WebApp.MetaTags(Model)
+}
+
+<header class="container" @(hasImage ? "class=has-image" : "") @(hasImage ? $"style=background-image:url({ @Url.Content(WebApp.Media.ResizeImage(Model.PrimaryImage, 1920, 400)) })" : "")>
+    <div class="dimmer"></div>
+    <div class="level">
+        <h1 class="level-item">@Model.Title</h1>
+    </div>
+        
+        @if (!string.IsNullOrWhiteSpace(Model.Excerpt))
+        {
+            <div class="level">
+                <div class="level-item lead">
+                    @Html.Raw(Model.Excerpt)
+                </div>
+            </div>
+        }
+    
+</header>
+
+<main class="archive">
+    @foreach (var block in Model.Blocks)
+    {
+        <div class="block @block.CssName()">
+            <div class="container">
+                @Html.DisplayFor(m => block, block.GetType().Name)
+            </div>
+        </div>
+    }
+    <div class="container">
+        @for (var n = 0; n < posts; n += 2)
+        {
+            <div class="columns">
+                @for (var i = n; i < Math.Min(posts, n + 2); i++)
+                {
+                    var post = Model.Archive.Posts[i];
+
+                    <div class="column is-6">
+
+                        <div class="card">
+                            @if (post.PrimaryImage.HasValue)
+                                {
+                                    <div class="card-image">
+                                        <figure class="image is-4by3">
+                                          <a href="@post.Permalink">
+                                            <img class="rounded mb-3" src="@Url.Content(WebApp.Media.ResizeImage(post.PrimaryImage, 1140, 450))" alt="@post.PrimaryImage.Media.AltText">
+                                        </a>
+                                        </figure>
+                                  </div>
+                                }
+                          
+                          <div class="card-content">
+                            <div class="media">
+                              <div class="media-left">
+                                <figure class="image is-48x48">
+                                            @if (post.Card.Image.HasValue)
+                                            {
+                                                <img class="rounded mb-3" src="@Url.Content(WebApp.Media.ResizeImage(post.Card.Image, 48, 48))" alt="@post.Card.Image.Media.AltText">
+                                          }
+                                        </figure>
+                              </div>
+                              <div class="media-content">
+                                <p class="title is-4">@post.Card.Name</p>
+                                <p class="subtitle is-6">@post.Card.Title</p>
+                              </div>
+                            </div>
+
+                            <div class="content">
+                              <p class="post-meta">
+                                    <span>
+                                        In <a href="@Model.Permalink/category/@post.Category.Slug">@post.Category.Title</a>
+                                    </span>
+                                    <span>
+                                        Tags
+                                        @foreach (var tag in post.Tags)
+                                        {
+                                            <a href="@Model.Permalink/tag/@tag.Slug">#@tag.Slug</a>
+                                        }
+                                    </span>
+                                    @if (post.IsPublished)
+                                    {
+                                        <span>
+                                            Published @post.Published.Value.ToShortDateString()
+                                        </span>
+                                    }
+                                    @if (post.EnableComments && post.CommentCount > 0)
+                                    {
+                                        <span>
+                                            <a href="@post.Permalink#comments">@post.CommentCount @(post.CommentCount == 1 ? "comment" : "comments")</a>
+                                        </span>
+                                    }
+                                </p>
+                                <p>@Html.Raw(post.Excerpt)</p>
+                                <a href="@post.Permalink" class="btn btn-primary">Read more</a>
+                            </div>
+                          </div>
+                        </div>
+
+
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</main>

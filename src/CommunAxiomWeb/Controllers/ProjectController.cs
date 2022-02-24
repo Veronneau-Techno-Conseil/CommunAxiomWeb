@@ -28,7 +28,10 @@ namespace CommunAxiomWeb.Controllers
         {
             var jwi = _serviceProvider.GetService<JiraWorkItems>();
 
-            var components = jwi.WorkItems.GroupBy(X=>X.Component);
+            var components = jwi?.WorkItems?.GroupBy(X=>X.Component);
+            if(components == null)
+                return NotFound();
+
             var prio = components.GroupBy(X=>X.Min(y=>y.Priority)).OrderBy(X=>X.Key);
 
             var gpLst = new List<TLGroup>();

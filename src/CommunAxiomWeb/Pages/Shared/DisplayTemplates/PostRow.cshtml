@@ -1,0 +1,18 @@
+@model Extend.PostRow
+
+@if (Model.Body.Post != null)
+{
+    <div class="columns text-segment">
+        @if (Model.Body.Post.PrimaryImage != null && Model.Body.Post.PrimaryImage.HasValue)
+        {
+            <div class="column is-one-quarter">
+                <img src="@Url.Content(WebApp.Media.ResizeImage(Model.Body.Post.PrimaryImage, 540, 250))" />
+            </div>
+        }
+        <div class="column is-three-quarters">
+            <h5>@Model.Body.Post.Title</h5>
+            <p>@Html.Raw(Model.Body.Post.Excerpt)</p>
+            <a href="@WebApp.Url(Model)" class="btn btn-sm btn-primary">Read more</a>
+        </div>
+    </div>
+}

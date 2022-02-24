@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&family=Raleway:wght@700&display=swap">
     <link rel="stylesheet" href="~/assets/css/style.min.css" asp-append-version="true">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-25N9DLDSXH"></script>
+    
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
@@ -19,50 +20,78 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-md navbar-light fixed-top">
+    <nav class="navbar is-white main-nav">
         <div class="container">
-            <a class="navbar-brand" href="~/"><img class="icon" src="~/assets/images/Logo.png" alt="Logo" /><h1>Commun Axiom</h1></a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <div class="navbar-brand">
+                <a class="navbar-item" href="~/">
+                    <img class="icon" src="~/assets/images/Logo.png" alt="Logo" />
+                    <h1>Commun Axiom</h1>
+                </a>
+                <a id="burger" role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navMenuIndex">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
 
-            <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-                <ul class="navbar-nav ml-auto">                  
-                    @foreach (var it in WebApp.Site.Sitemap.Where(y=>y.HasChild(WebApp.PageId)).SelectMany(X=>X.Items))
-                    {
-                    <li class="nav-item@(it.Id == WebApp.PageId || it.HasChild(WebApp.PageId) ? " active" : "")">
-                        <a class="nav-link" href="@WebApp.Url(it)">@it.MenuTitle</a>
-                    </li>
-                    }
-                </ul>
+        <div id="navMenuIndex" class="navbar-menu">
+            <div class="navbar-end">
+                @foreach (var it in WebApp.Site.Sitemap.Where(y=>y.HasChild(WebApp.PageId)).SelectMany(X=>X.Items))
+                {
+                    <a class="navbar-item@(it.Id == WebApp.PageId || it.HasChild(WebApp.PageId) ? " is-active" : "")" href="@WebApp.Url(it)">@it.MenuTitle</a>
+
+                }
             </div>
         </div>
     </nav>
 
     @RenderBody()
     <footer class="footer">
-      <nav class="container navbar navbar-light">
-        <img class="icon" src="~/assets/images/VTC.png" />
-        @if(WebApp.CurrentPage == null || WebApp.CurrentPage.Slug.Split('/')[0].ToLowerInvariant()=="fr"){
-            <span class="text-muted">Tous droits réservés © Véronneau Techno. Conseil inc.</span>
-        }
-        else{
-            <span class="text-muted">All rights reserved © Véronneau Techno. Conseil inc.</span>
-        }
-
-        <ul class="navbar-nav ml-auto">
-            @foreach (var item in WebApp.Site.Sitemap.Where(i => !i.IsHidden))
-                    {
-                    <li class="nav-item@(item.Id == WebApp.PageId || item.HasChild(WebApp.PageId) ? " active" : "")">
-                        <a class="nav-link" href="@WebApp.Url(item)">@item.MenuTitle</a>
-                    </li>
+      <nav class="navbar is-white">
+          <div class="container">
+              <div class="navbar-brand">
+                <a class="navbar-item" href="~/">
+                    <img class="icon" src="~/assets/images/VTC.png" />
+                    @if(WebApp.CurrentPage == null || WebApp.CurrentPage.Slug.Split('/')[0].ToLowerInvariant()=="fr"){
+                        <span class="text-muted">Tous droits réservés © Véronneau Techno. Conseil inc.</span>
                     }
-        </ul>
-        
+                    else{
+                        <span class="text-muted">All rights reserved © Véronneau Techno. Conseil inc.</span>
+                    }
+                </a>
+               
+            </div>
+            <div id="footerMenuIndex" class="navbar-menu">
+                <div class="navbar-start">
+                    @foreach (var it in WebApp.Site.Sitemap.Where(i => !i.IsHidden))
+                    {
+                        <a class="navbar-item@(it.Id == WebApp.PageId || it.HasChild(WebApp.PageId) ? " is-active" : "")" href="@WebApp.Url(it)">@it.MenuTitle</a>
+
+                    }
+                </div>
+            </div>
+          </div>        
       </nav>
     </footer>
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    
+    <script type="text/javascript">
+        (function(){
+            $(document).ready(function(){
+                $("#burger").click(function(e){
+                    $("#navMenuIndex").toggleClass("is-active");
+                    e.stopPropagation();
+                })
+                $('html').click(function(e) {   
+                    if( !$(e.target).hasClass('burger') )
+                    {
+                        $("#navMenuIndex").removeClass("is-active");
+                    }
+                });
+
+            })
+        })();
+    </script>
 </body>
 </html>

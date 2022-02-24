@@ -1,0 +1,41 @@
+@using CommunAxiomWeb.Extend
+@model AuthorLink
+@{
+    var post = Model.AuthorPost;
+}
+
+<div class="card">
+    @if (post.PrimaryImage.HasValue)
+    {
+        <div class="card-image">
+            <figure class="image is-4by3">
+                <a href="@post.Permalink">
+                    <img class="rounded mb-3" src="@Url.Content(WebApp.Media.ResizeImage(post.PrimaryImage, 1140, 450))" alt="@post.PrimaryImage.Media.AltText">
+                </a>
+            </figure>
+        </div>
+    }
+
+    <div class="card-content">
+        <a class="media" href="@post.Permalink">
+            <div class="media-left">
+                <figure class="image is-64x64">
+                    @if (post.Card.Image.HasValue)
+                    {
+                        <img class="rounded mb-3" src="@Url.Content(WebApp.Media.ResizeImage(post.Card.Image, 48, 48))" alt="@post.Card.Image.Media.AltText">
+                    }
+                </figure>
+            </div>
+            <div class="media-content">
+                <p class="title is-4">@post.Card.Name</p>
+                <p class="subtitle is-6">
+                    <h3>@post.Card.Title</h3>
+                    @if (!string.IsNullOrWhiteSpace(post.Card.Organisation.Value))
+                    {
+                        <h4><span class="is-4 bold">@post.Card.Organisation</span></h4>
+                    }
+                </p>
+            </div>
+        </a>
+    </div>
+</div>
