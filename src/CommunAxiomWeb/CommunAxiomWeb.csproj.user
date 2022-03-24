@@ -19,13 +19,11 @@
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
   </PropertyGroup>
   <ItemGroup>
-    <None Update="assets\ts\components\link-preview.vue">
-      <SubType>Code</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <None Update="assets\ts\carousel.ts">
       <SubType>Code</SubType>
     </None>
+    <TypeScriptCompile Update="assets\ts\dropdownMenu.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
   </ItemGroup>
 </Project>

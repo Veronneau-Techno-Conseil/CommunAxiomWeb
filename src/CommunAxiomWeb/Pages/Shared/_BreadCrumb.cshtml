@@ -1,0 +1,31 @@
+﻿@model Guid
+@{
+    var crumbs = Helper.SitemapHelper.GetBreadcrumbs(WebApp);
+}
+
+
+<nav class="breadcrumb" aria-label="breadcrumbs">
+    <div class="container">
+  <ul>
+    @foreach(var crumb in crumbs.Skip(1))
+    {
+        <li>
+                @{
+                    bool isActive = crumb.Id == WebApp.PageId;
+                }
+                
+                @if (isActive)
+                {
+                    <a class="is-active" aria-current="page" href="@WebApp.Url(crumb)">@crumb.MenuTitle</a>
+                }
+                else
+                {
+                    <a href="@WebApp.Url(crumb)">@crumb.MenuTitle</a>
+                }
+        </li>
+    }
+  </ul>
+   </div>
+</nav>
+
+

@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommunAxiomWeb", "CommunAxiomWeb\CommunAxiomWeb.csproj", "{4817D218-0A7E-47BA-A081-7BA9636F05D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VirtualBrowser", "VirtualBrowser\VirtualBrowser.csproj", "{B523BDF3-7B14-4A34-BFC5-C306CCA9D201}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VirtualBrowser", "VirtualBrowser\VirtualBrowser.csproj", "{B523BDF3-7B14-4A34-BFC5-C306CCA9D201}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

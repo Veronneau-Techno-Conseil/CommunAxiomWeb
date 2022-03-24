@@ -1,0 +1,25 @@
+﻿
+@model Piranha.Models.SitemapItem
+@{
+}
+
+
+
+@if (Model.Items != null && Model.Items.Count > 0)
+{
+    var curId = Html.Id(Model.Id.ToString());
+                            
+    <div class="navbar-item@(Model.Id == WebApp.PageId || Model.HasChild(WebApp.PageId) ? " is-current" : "") has-dropdown is-hoverable">
+        <a class="navbar-link" href="@WebApp.Url(Model)">@Model.MenuTitle</a>
+        <div class="navbar-dropdown">   
+            @foreach(var el in Model.Items)
+            {
+                @Html.Partial("_navMenu",el)
+            }
+        </div>
+    </div>
+}
+else
+{
+    <a class="navbar-item@(Model.Id == WebApp.PageId || Model.HasChild(WebApp.PageId) ? " is-current" : "")" href="@WebApp.Url(Model)">@Model.MenuTitle</a>
+}

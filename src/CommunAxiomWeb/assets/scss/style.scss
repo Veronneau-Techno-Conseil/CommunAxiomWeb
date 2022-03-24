@@ -1,5 +1,8 @@
 
 @charset "utf-8";
+
+@import "./inc/_fonts.scss";
+
 $light-green: #4dc981;
 $dark-green: #239854;
 
@@ -57,11 +60,15 @@ $input-shadow: none;
 // Optional Theme Stylesheet
 @import "node_modules/@glidejs/glide/src/assets/sass/glide.theme";
 
-@import "./inc/_type.scss";
-@import "./inc/_navbar.scss";
-@import "./inc/_header.scss";
-@import "./inc/_footer.scss";
 @import "./inc/_blocks.scss";
+@import "./inc/_buttons.scss";
+@import "./inc/_cards.scss";
+@import "./inc/_footer.scss";
+@import "./inc/_header.scss";
+
+@import "./inc/_navbar.scss";
+@import "./inc/_posts.scss";
+@import "./inc/_type.scss";
 
 .quote-block{
     @extend .level

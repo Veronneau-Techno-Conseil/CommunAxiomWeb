@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="assets\ts\dropdownMenu.ts" />
+  </ItemGroup>
+
+  <ItemGroup>
    
     <PackageReference Include="Atlassian.SDK" Version="12.4.0" />
    
@@ -53,11 +57,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="assets\ts\components\" />
     <Folder Include="wwwroot\assets\bundle\" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\VirtualBrowser\VirtualBrowser.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="assets\ts\dropdownMenu.ts" />
   </ItemGroup>
 
 </Project>
