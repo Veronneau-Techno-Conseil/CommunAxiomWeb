@@ -53,7 +53,7 @@ pipeline {
         stage('Prep Helm') {
             steps {
                 sh 'mkdir penv && python3 -m venv ./penv'
-                sh '. penv/bin/activate && pip install -r ./build/requirements.txt && python3 ./build/processchart.py'
+                sh '. penv/bin/activate && pwd && ls -l && pip install -r ./build/requirements.txt && python3 ./build/processchart.py'
             }
         }
         stage('Helm') {
