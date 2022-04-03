@@ -13,7 +13,7 @@ pipeline {
                     }
                     
                     // Get some code from a GitHub repository
-                    git branch: 'main', url: 'https://github.com/Veronneau-Techno-Conseil/CommunAxiomWeb.git'
+                    git branch: '$BRANCH_NAME', url: 'https://github.com/Veronneau-Techno-Conseil/CommunAxiomWeb.git'
                 
                     version = readFile('VERSION')
                     //def versions = version.split('\\.')
