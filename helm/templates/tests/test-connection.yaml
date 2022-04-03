@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "comax-web.fullname" . }}-test-connection"
+  labels:
+    {{- include "comax-web.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "comax-web.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never

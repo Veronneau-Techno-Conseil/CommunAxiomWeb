@@ -46,13 +46,23 @@ pipeline {
                     script {
                         currentBuild.displayName = version
                         //buildDescription("Committer: ${GERRIT_PATCHSET_UPLOADER_NAME}")
-                        cleanWs()
                     }
+                }                
+            }
+        }
+        stage('Prep Helm') {
+            steps {
+                sh 'mkdir penv && python3 -m venv ./penv'
+                sh '. penv/bin/activate && pip install -r ./build/requirements.txt && python3 ./build/processchart.py'
+            }
+        }
+        stage('Helm') {
+            steps {
+                withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
+                    sh 'helm lint ./helm/'
+                    sh 'helm package ./helm/'
+                    sh 'CHARTVER=$(cat ./helm/VERSION) && curl -k --data-binary "@comax-web-$CHARTVER.tgz" https://charts.vtck3s.lan/api/charts'
                 }
-                failure() {
-                    cleanWs()
-                }
-                
             }
         }
     }
