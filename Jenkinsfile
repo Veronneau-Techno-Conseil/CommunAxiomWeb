@@ -1,4 +1,6 @@
 def version = ''
+def chartVersion = ''
+def chartAction = ''
 def patch = ''
 
 pipeline {
@@ -7,6 +9,7 @@ pipeline {
     stages {
         stage('Prepare') {
             steps {
+                sh 'echo "Build Summary: \n" > summary'
                 script {
                     withCredentials([string(credentialsId: 'hangouts_token', variable: 'CHATS_TOKEN')]) {
                         hangoutsNotifyBuildStart token: "$CHATS_TOKEN",threadByJob: false
@@ -16,6 +19,7 @@ pipeline {
                     git branch: '$BRANCH_NAME', url: 'https://github.com/Veronneau-Techno-Conseil/CommunAxiomWeb.git'
                 
                     version = readFile('VERSION')
+                    chartVersion = readFile('./helm/VERSION')
                     //def versions = version.split('\\.')
                     //def major = versions[0]
                     //def minor = versions[0] + '.' + versions[1]
@@ -39,6 +43,7 @@ pipeline {
                     customImage.push()
                     customImage.push(patch)
                 }
+                sh 'echo "Build registry.vtck3s.lan/comaxweb:${version} pushed to registry \n" >> summary'
             }
 
             post {
@@ -54,14 +59,37 @@ pipeline {
             steps {
                 sh 'mkdir penv && python3 -m venv ./penv'
                 sh '. penv/bin/activate && pwd && ls -l && pip install -r ./build/requirements.txt && python3 ./build/processchart.py'
+                sh 'curl -k https://charts.vtck3s.lan/api/charts/comax-web/${chartVersion} | jq ''.name | "DEPLOY"'' > CHART_ACTION'
+                script {
+                    chartAction = readFile('CHART_ACTION').replace('"','')
+                }
             }
         }
         stage('Helm') {
+            when{
+                expression {
+                    return chartAction == "DEPLOY"
+                }
+            }
             steps {
                 withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
                     sh 'helm lint ./helm/'
-                    sh 'helm package ./helm/'
+                    sh 'helm repo update --repository-config ${repos}'
+                    sh 'helm dependency update --repository-config ${repos}'
+                    sh 'helm package ./helm/ --repository-config ${repos}'
                     sh 'CHARTVER=$(cat ./helm/VERSION) && curl -k --data-binary "@comax-web-$CHARTVER.tgz" https://charts.vtck3s.lan/api/charts'
+                }
+            }
+        }
+        stage('SKIP Helm') {
+            when{
+                expression {
+                    return chartAction != "DEPLOY"
+                }
+            }
+            steps {
+                withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
+                    sh 'echo "Skipped helm chart deployment du to preexisting chart version ${chartVersion} \n" >> summary'
                 }
             }
         }
