@@ -99,15 +99,15 @@ pipeline {
                 withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
                     sh 'helm repo update --repository-config ${repos}'
                     sh 'helm dependency update ./helm --repository-config ${repos}'
-                    sh 'helm -n comaxws list --output=json --repository-config ${repos} --kubeconfig ${kubecfg} > helmlist'
-                    sh 'cat helmlist | jq \'select(.[].name == "comaxweb") | select(.[].status == "deployed") | "upgrade" \' > deployAction'
-                    sh 'cat helmlist | jq \'select(.[].name == "comaxweb") | select(.[].status != "deployed") | "uninstall" \' > shouldUninstall'
+                    sh 'helm -n comaxws list --output=json --kubeconfig ${kubecfg} > helmlist'
+                    sh 'jq \'select(.[].name == "comaxweb") | select(.[].status == "deployed") | "upgrade" \' helmlist > deployAction'
+                    sh 'jq \'select(.[].name == "comaxweb") | select(.[].status != "deployed") | "uninstall" \' helmlist > shouldUninstall'
                     script {
                         deployAction = readFile('deployAction').replace('"','')
                         shouldUninstall = readFile('shouldUninstall').replace('"','')
                     }
-                    sh 'echo \'Deploy action: ${deployAction}\''
-                    sh 'echo \'Should uninstall: ${shouldUninstall}\''
+                    sh 'echo "Deploy action: ${deployAction}"'
+                    sh 'echo "Should uninstall: ${shouldUninstall}"'
                 }
             }
         }
@@ -147,24 +147,23 @@ pipeline {
                 }
             }
         }
+        stage('Finalize') {
+            steps {
+                message = readFile('summary')
+            }
+        }
     }
     post {
         success {
             withCredentials([string(credentialsId: 'hangouts_token', variable: 'CHATS_TOKEN')]) {
-                script {
-                    message = readFile('summary')
-                }
-                hangoutsNotify message: message, token: "$CHATS_TOKEN", threadByJob: false
-                hangoutsNotifySuccess token: "$CHATS_TOKEN", threadByJob: false
+                hangoutsNotify message: message, token: '${CHATS_TOKEN}', threadByJob: false
+                hangoutsNotifySuccess token: '${CHATS_TOKEN}', threadByJob: false
             }
         }
         failure {
             withCredentials([string(credentialsId: 'hangouts_token', variable: 'CHATS_TOKEN')]) {
-                script {
-                    message = readFile('summary')
-                }
-                hangoutsNotify message: message, token: "$CHATS_TOKEN", threadByJob: false
-                hangoutsNotifyFailure token: "$CHATS_TOKEN",threadByJob: false
+                hangoutsNotify message: message, token: '${CHATS_TOKEN}', threadByJob: false
+                hangoutsNotifyFailure token: '${CHATS_TOKEN}',threadByJob: false
             }
         }
         always {
