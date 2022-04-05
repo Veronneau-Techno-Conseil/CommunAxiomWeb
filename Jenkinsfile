@@ -59,7 +59,7 @@ pipeline {
                 sh '. penv/bin/activate && pwd && ls -l && pip install -r ./build/requirements.txt && python3 ./build/processchart.py'
                 sh 'curl -k https://charts.vtck3s.lan/api/charts/comax-web/${chartVersion} | jq \'.name | "DEPLOY"\' > CHART_ACTION'
                 script {
-                    chartAction = readFile('CHART_ACTION').replace('"','')
+                    chartAction = readFile('CHART_ACTION').replace('"','').trim()
                 }
             }
         }
@@ -105,8 +105,8 @@ pipeline {
                     sh 'jq \'select(.[].name == "comaxweb") | select(.[].status != "deployed") | "uninstall" \' HELM_LIST > SHOULD_UNINSTALL'
                     sh 'cat DEPLOY_ACTION && cat SHOULD_UNINSTALL'
                     script {
-                        deployAction = readFile('DEPLOY_ACTION').replace('"','')
-                        shouldUninstall = readFile('SHOULD_UNINSTALL').replace('"','')
+                        deployAction = readFile('DEPLOY_ACTION').replace('"','').trim()
+                        shouldUninstall = readFile('SHOULD_UNINSTALL').replace('"','').trim()
                     }
                     echo "Deploy action: ${deployAction}"
                     echo "Should uninstall: ${shouldUninstall}"
@@ -132,6 +132,7 @@ pipeline {
                 }
             }
             steps {
+                echo "Deploy action: ${deployAction}"
                 withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
                     sh 'helm -n comaxws install comaxweb ./helm/ --kubeconfig ${kubecfg} --repository-config ${repos}'
                 }
