@@ -4,7 +4,7 @@ def chartAction = ''
 def patch = ''
 def shouldUninstall = ''
 def deployAction = ''
-
+def message = ''
 pipeline {
     agent any
 
@@ -132,7 +132,7 @@ pipeline {
                 }
             }
         }
-        stage('Install Application deployment') {
+        stage('Upgrade Application deployment') {
             when{
                 expression {
                     return env.BRANCH_NAME.startsWith('release') && deployAction == "upgrade"
@@ -140,7 +140,7 @@ pipeline {
             }
             steps {
                 withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
-                    sh 'helm -n comaxws install comaxweb ./helm/ --kubeconfig ${kubecfg} --repository-config ${repos}'
+                    sh 'helm -n comaxws upgrade comaxweb ./helm/ --kubeconfig ${kubecfg} --repository-config ${repos}'
                 }
             }
         }
@@ -148,14 +148,16 @@ pipeline {
     post {
         success {
             withCredentials([string(credentialsId: 'hangouts_token', variable: 'CHATS_TOKEN')]) {
-                def message = readFile('summary')
-                hangoutsNotifySuccess message: message, token: "$CHATS_TOKEN", threadByJob: false
+                message = readFile('summary')
+                hangoutsNotify message: message, token: "$CHATS_TOKEN", threadByJob: false
+                hangoutsNotifySuccess token: "$CHATS_TOKEN", threadByJob: false
             }
         }
         failure {
             withCredentials([string(credentialsId: 'hangouts_token', variable: 'CHATS_TOKEN')]) {
-                def message = readFile('summary')
-                hangoutsNotifyFailure message: message, token: "$CHATS_TOKEN",threadByJob: false
+                message = readFile('summary')
+                hangoutsNotify message: message, token: "$CHATS_TOKEN", threadByJob: false
+                hangoutsNotifyFailure token: "$CHATS_TOKEN",threadByJob: false
             }
         }
         always {
