@@ -11,7 +11,7 @@ pipeline {
     stages {
         stage('Prepare') {
             steps {
-                sh 'echo "Build Summary: \n" > summary'
+                sh 'echo "Build Summary: \n" > SUMMARY'
                 script {
                     withCredentials([string(credentialsId: 'hangouts_token', variable: 'CHATS_TOKEN')]) {
                         hangoutsNotifyBuildStart token: "$CHATS_TOKEN",threadByJob: false
@@ -42,7 +42,7 @@ pipeline {
                     customImage.push()
                     customImage.push(patch)
                 }
-                sh 'echo "Build registry.vtck3s.lan/comaxweb:${version} pushed to registry \n" >> summary'
+                sh 'echo "Build registry.vtck3s.lan/comaxweb:${version} pushed to registry \n" >> SUMMARY'
             }
 
             post {
@@ -86,7 +86,7 @@ pipeline {
                 }
             }
             steps {
-                sh 'echo "Skipped helm chart deployment du to preexisting chart version ${chartVersion} \n" >> summary'
+                sh 'echo "Skipped helm chart deployment du to preexisting chart version ${chartVersion} \n" >> SUMMARY'
             }
         }
         stage('Prepare Application deployment') {
@@ -99,17 +99,17 @@ pipeline {
                 withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
                     sh 'helm repo update --repository-config ${repos}'
                     sh 'helm dependency update ./helm --repository-config ${repos}'
-                    sh 'helm list -n comaxws --output=json --kubeconfig $kubecfg > helmlist'
-                    sh 'cat helmlist'
-                    sh 'jq \'select(.[].name == "comaxweb") | select(.[].status == "deployed") | "upgrade" \' helmlist > deployAction'
-                    sh 'jq \'select(.[].name == "comaxweb") | select(.[].status != "deployed") | "uninstall" \' helmlist > shouldUninstall'
-                    sh 'cat deployAction && cat shouldUninstall'
+                    sh 'helm list -n comaxws --output=json --kubeconfig $kubecfg > HELM_LIST'
+                    sh 'cat HELM_LIST'
+                    sh 'jq \'select(.[].name == "comaxweb") | select(.[].status == "deployed") | "upgrade" \' HELM_LIST > DEPLOY_ACTION'
+                    sh 'jq \'select(.[].name == "comaxweb") | select(.[].status != "deployed") | "uninstall" \' HELM_LIST > SHOULD_UNINSTALL'
+                    sh 'cat DEPLOY_ACTION && cat SHOULD_UNINSTALL'
                     script {
-                        deployAction = readFile('deployAction').replace('"','')
-                        shouldUninstall = readFile('shouldUninstall').replace('"','')
+                        deployAction = readFile('DEPLOY_ACTION').replace('"','')
+                        shouldUninstall = readFile('SHOULD_UNINSTALL').replace('"','')
                     }
-                    sh 'echo "Deploy action: ${deployAction}"'
-                    sh 'echo "Should uninstall: ${shouldUninstall}"'
+                    echo "Deploy action: ${deployAction}"
+                    echo "Should uninstall: ${shouldUninstall}"
                 }
             }
         }
@@ -152,7 +152,7 @@ pipeline {
         stage('Finalize') {
             steps {
                 script {
-                    message = readFile('summary')
+                    message = readFile('SUMMARY')
                 }
             }
         }
