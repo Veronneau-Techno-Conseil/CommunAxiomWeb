@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "comax-web.fullname" . }}
+  labels:
+    {{- include "comax-web.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "comax-web.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "comax-web.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "comax-web.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+      # - name: certs
+      #   secret:
+      #     secretName: internal-tls
+      - name: database
+        persistentVolumeClaim:
+          claimName: {{ .Values.dbStorageClaimName }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            # - name: certs
+            #   mountPath: /cert.pem
+            #   subPath: tls.crt
+            # - name: certs
+            #   mountPath: /key.pem
+            #   subPath: tls.key
+            - name: database
+              mountPath: /data
+          env:
+          - name: ConnectionStrings__piranha
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "comax-web.awsSecretName" . }}
+                key: CONNSTR
+          - name: AWS_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "comax-web.awsSecretName" . }}
+                key: AWS_ACCESS_KEY_ID
+          - name: AWS_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "comax-web.awsSecretName" . }}
+                key: AWS_SECRET_ACCESS_KEY
+          - name: Urls
+            value: {{ .Values.urls }}
+          - name: "AWS__Profile"
+            value: "s3_uploads_profile"
+          - name: "AWS__Region"
+            value: "ca-central-1"
+          - name: "StorageMode"
+            value: "aws"
+          {{ if .Values.hostOverride }}
+          - name: "HostOverride"
+            value: {{ .Values.hostOverride }}
+          {{ end}}
+          {{ if .Values.schemeOverride }}
+          - name: SchemeOverride
+            value: {{ .Values.schemeOverride }}
+          {{ end }}
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          #     scheme: HTTP
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          #     scheme: HTTP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
