@@ -2,6 +2,8 @@ def version = ''
 def chartVersion = ''
 def chartAction = ''
 def patch = ''
+def shouldUninstall = ''
+def deployAction = ''
 
 pipeline {
     agent any
@@ -20,9 +22,6 @@ pipeline {
                 
                     version = readFile('VERSION')
                     chartVersion = readFile('./helm/VERSION')
-                    //def versions = version.split('\\.')
-                    //def major = versions[0]
-                    //def minor = versions[0] + '.' + versions[1]
                     patch = version.trim()
                 }
             }
@@ -50,7 +49,6 @@ pipeline {
                 success {
                     script {
                         currentBuild.displayName = version
-                        //buildDescription("Committer: ${GERRIT_PATCHSET_UPLOADER_NAME}")
                     }
                 }                
             }
@@ -75,7 +73,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
                     sh 'helm lint ./helm/'
                     sh 'helm repo update --repository-config ${repos}'
-                    sh 'helm dependency update --repository-config ${repos}'
+                    sh 'helm dependency update ./helm/ --repository-config ${repos}'
                     sh 'helm package ./helm/ --repository-config ${repos}'
                     sh 'CHARTVER=$(cat ./helm/VERSION) && curl -k --data-binary "@comax-web-$CHARTVER.tgz" https://charts.vtck3s.lan/api/charts'
                 }
@@ -88,8 +86,61 @@ pipeline {
                 }
             }
             steps {
+                sh 'echo "Skipped helm chart deployment du to preexisting chart version ${chartVersion} \n" >> summary'
+            }
+        }
+        stage('Prepare Application deployment') {
+            when{
+                expression {
+                    return env.BRANCH_NAME.startsWith('release')
+                }
+            }
+            steps {
                 withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
-                    sh 'echo "Skipped helm chart deployment du to preexisting chart version ${chartVersion} \n" >> summary'
+                    sh 'helm repo update --repository-config ${repos}'
+                    sh 'helm dependency update ./helm --repository-config ${repos}'
+                    sh 'echo $str | jq \'select(.[].name == "comaxweb") | select(.[].status == "deployed") | "upgrade" \' > deployAction'
+                    sh 'echo $str | jq \'select(.[].name == "comaxweb") | select(.[].status != "deployed") | "uninstall" \' > shouldUninstall'
+                    script {
+                        deployAction = readFile('deployAction').replace('"','')
+                        shouldUninstall = readFile('shouldUninstall').replace('"','')
+                    }
+                }
+            }
+        }
+        stage('Uninstall Application deployment') {
+            when{
+                expression {
+                    return env.BRANCH_NAME.startsWith('release') && shouldUninstall == 'uninstall'
+                }
+            }
+            steps {
+                withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
+                    sh 'helm -n comaxws uninstall comaxweb --kubeconfig ${kubecfg}'
+                }
+            }
+        }
+        stage('Install Application deployment') {
+            when{
+                expression {
+                    return env.BRANCH_NAME.startsWith('release') && deployAction != "upgrade"
+                }
+            }
+            steps {
+                withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
+                    sh 'helm -n comaxws install comaxweb ./helm/ --kubeconfig ${kubecfg} --repository-config ${repos}'
+                }
+            }
+        }
+        stage('Install Application deployment') {
+            when{
+                expression {
+                    return env.BRANCH_NAME.startsWith('release') && deployAction == "upgrade"
+                }
+            }
+            steps {
+                withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
+                    sh 'helm -n comaxws install comaxweb ./helm/ --kubeconfig ${kubecfg} --repository-config ${repos}'
                 }
             }
         }
@@ -97,12 +148,14 @@ pipeline {
     post {
         success {
             withCredentials([string(credentialsId: 'hangouts_token', variable: 'CHATS_TOKEN')]) {
-                hangoutsNotifySuccess token: "$CHATS_TOKEN",threadByJob: false
+                def message = readFile('summary')
+                hangoutsNotifySuccess message: message token: "$CHATS_TOKEN",threadByJob: false
             }
         }
         failure {
             withCredentials([string(credentialsId: 'hangouts_token', variable: 'CHATS_TOKEN')]) {
-                hangoutsNotifyFailure token: "$CHATS_TOKEN",threadByJob: false
+                def message = readFile('summary')
+                hangoutsNotifyFailure message: message token: "$CHATS_TOKEN",threadByJob: false
             }
         }
         always {
