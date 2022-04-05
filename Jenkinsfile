@@ -148,14 +148,18 @@ pipeline {
     post {
         success {
             withCredentials([string(credentialsId: 'hangouts_token', variable: 'CHATS_TOKEN')]) {
-                message = readFile('summary')
+                script {
+                    message = readFile('summary')
+                }
                 hangoutsNotify message: message, token: "$CHATS_TOKEN", threadByJob: false
                 hangoutsNotifySuccess token: "$CHATS_TOKEN", threadByJob: false
             }
         }
         failure {
             withCredentials([string(credentialsId: 'hangouts_token', variable: 'CHATS_TOKEN')]) {
-                message = readFile('summary')
+                script {
+                    message = readFile('summary')
+                }
                 hangoutsNotify message: message, token: "$CHATS_TOKEN", threadByJob: false
                 hangoutsNotifyFailure token: "$CHATS_TOKEN",threadByJob: false
             }
