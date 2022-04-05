@@ -149,13 +149,13 @@ pipeline {
         success {
             withCredentials([string(credentialsId: 'hangouts_token', variable: 'CHATS_TOKEN')]) {
                 def message = readFile('summary')
-                hangoutsNotifySuccess message: message token: "$CHATS_TOKEN",threadByJob: false
+                hangoutsNotifySuccess message: message, token: "$CHATS_TOKEN", threadByJob: false
             }
         }
         failure {
             withCredentials([string(credentialsId: 'hangouts_token', variable: 'CHATS_TOKEN')]) {
                 def message = readFile('summary')
-                hangoutsNotifyFailure message: message token: "$CHATS_TOKEN",threadByJob: false
+                hangoutsNotifyFailure message: message, token: "$CHATS_TOKEN",threadByJob: false
             }
         }
         always {
