@@ -149,7 +149,9 @@ pipeline {
         }
         stage('Finalize') {
             steps {
-                message = readFile('summary')
+                script {
+                    message = readFile('summary')
+                }
             }
         }
     }
