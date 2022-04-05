@@ -99,9 +99,11 @@ pipeline {
                 withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
                     sh 'helm repo update --repository-config ${repos}'
                     sh 'helm dependency update ./helm --repository-config ${repos}'
-                    sh 'helm -n comaxws list --output=json --kubeconfig ${kubecfg} > helmlist'
+                    sh 'helm list -n comaxws --output=json --kubeconfig $kubecfg > helmlist'
+                    sh 'cat helmlist'
                     sh 'jq \'select(.[].name == "comaxweb") | select(.[].status == "deployed") | "upgrade" \' helmlist > deployAction'
                     sh 'jq \'select(.[].name == "comaxweb") | select(.[].status != "deployed") | "uninstall" \' helmlist > shouldUninstall'
+                    sh 'cat deployAction && cat shouldUninstall'
                     script {
                         deployAction = readFile('deployAction').replace('"','')
                         shouldUninstall = readFile('shouldUninstall').replace('"','')
