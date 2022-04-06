@@ -21,7 +21,8 @@ namespace VirtualBrowser
                 entry.SetAbsoluteExpiration(TimeSpan.FromDays(1));
                 Console.WriteLine("Downloading chromium");
                 using var browserFetcher = new BrowserFetcher();
-                await browserFetcher.DownloadAsync();
+                var res = await browserFetcher.DownloadAsync();
+                options.ExecutablePath = Path.GetRelativePath(new FileInfo(" typeof(Browser).Assembly.Location").DirectoryName, res.ExecutablePath);
 
                 using (var browser = await Puppeteer.LaunchAsync(options))
                 using (var page = await browser.NewPageAsync())

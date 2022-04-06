@@ -81,6 +81,7 @@ namespace CommunAxiomWeb
 
 
                 Piranha.App.Blocks.Register<RowBlock>();
+                Piranha.App.Blocks.Register<FlexibleBlock>();
                 Piranha.App.Blocks.Register<PostRow>();
                 Piranha.App.Blocks.Register<AuthorLink>();
                 Piranha.App.Blocks.Register<ImageSegmentBlock>();

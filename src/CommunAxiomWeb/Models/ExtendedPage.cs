@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Piranha;
 using Piranha.AspNetCore.Services;
 using Piranha.AttributeBuilder;
+using Piranha.Extend;
 using Piranha.Models;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace CommunAxiomWeb.Models
@@ -29,19 +31,30 @@ namespace CommunAxiomWeb.Models
                     return NotFound();
                 }
 
-                foreach(var b in Data.Blocks)
-                {
-                    if(b is IExtendedBlock)
-                    {
-                        await (b as IExtendedBlock).Extend(HttpContext.User, this._api, this._loader, _serviceProvider, draft);
-                    }
-                }
+                await InspectBlocks(Data.Blocks, draft);
+                
 
                 return Page();
             }
             catch (UnauthorizedAccessException)
             {
                 return Unauthorized();
+            }
+        }
+
+        private async Task InspectBlocks(IEnumerable<Block> lst, bool draft)
+        {
+            foreach (var b in lst)
+            {
+                if (b is IExtendedBlock)
+                {
+                    await (b as IExtendedBlock).Extend(HttpContext.User, this._api, this._loader, _serviceProvider, draft);
+                }
+                else if (b is BlockGroup)
+                {
+                    var group = (BlockGroup)b;
+                    await InspectBlocks(group.Items, draft);
+                }
             }
         }
     }
