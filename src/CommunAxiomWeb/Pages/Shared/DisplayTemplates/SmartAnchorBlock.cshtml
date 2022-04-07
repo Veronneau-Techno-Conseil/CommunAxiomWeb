@@ -19,9 +19,9 @@
                     </figure>
                 </div>
                 <div class="media-content">
-                    <p class="title is-4">@metadata.Title</p>
+                    <p class="title is-4">@Html.Raw(metadata.Title)</p>
                     <p class="subtitle is-6">
-                        <h3>@metadata.Description</h3>
+                        <h3>@Html.Raw(metadata.Description)</h3>
                     </p>
                     <p><a href="@metadata.Url.ToString()">@metadata.Url.ToString()</a></p>
                 </div>
