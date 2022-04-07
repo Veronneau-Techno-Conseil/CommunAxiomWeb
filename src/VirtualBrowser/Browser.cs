@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PuppeteerSharp;
 namespace VirtualBrowser
@@ -7,10 +8,12 @@ namespace VirtualBrowser
     {
         private readonly IMemoryCache _memoryCache;
         private readonly ILogger _logger;
-        public Browser(IMemoryCache cache, ILogger<Browser> logger)
+        private readonly IConfiguration _configuration;
+        public Browser(IMemoryCache cache, ILogger<Browser> logger, IConfiguration configuration)
         {
             _memoryCache = cache;
             _logger = logger;
+            _configuration = configuration;
         }
 
         public async Task<Metadata> GetMetadata(string url)
@@ -22,15 +25,11 @@ namespace VirtualBrowser
                     Headless = true
                 };
                 entry.SetAbsoluteExpiration(TimeSpan.FromDays(1));
-                _logger.LogInformation("Downloading chromium");
-                using var browserFetcher = new BrowserFetcher();
-                var res = await browserFetcher.DownloadAsync();
-                _logger.LogInformation("Downloading complete");
-                _logger.LogInformation(Newtonsoft.Json.JsonConvert.SerializeObject(res));
-                var directory = Environment.CurrentDirectory;
-                _logger.LogInformation($"Resolving path to chromium relative to {directory}");
-                options.ExecutablePath = Path.GetRelativePath(directory, res.ExecutablePath);
-                _logger.LogInformation($"Using path {options.ExecutablePath}");
+                
+                if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("PUPPETEER_EXECUTABLE_PATH")))
+                {
+                    Environment.SetEnvironmentVariable("PUPPETEER_EXECUTABLE_PATH", _configuration["ChromePath"]);
+                }
 
                 using (var browser = await Puppeteer.LaunchAsync(options))
                 using (var page = await browser.NewPageAsync())
