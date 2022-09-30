@@ -112,6 +112,10 @@ namespace CommunAxiomWeb.Services
                             {
                                 wi.Component = i.Components.First().Name;
                             }
+                            else
+                            {
+                                wi.Component = "Other";
+                            }
 
                             items.Add(wi);
                         }
