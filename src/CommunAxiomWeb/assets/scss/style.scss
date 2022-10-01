@@ -73,3 +73,13 @@ $input-shadow: none;
 .quote-block{
     @extend .level
 }
+
+.tile img {
+    height: fit-content;
+}
+
+ul {
+    list-style: circle;
+    padding-left: 3em;
+    padding-right: 3em;
+}
