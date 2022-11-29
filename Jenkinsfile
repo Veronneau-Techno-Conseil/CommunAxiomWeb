@@ -7,7 +7,7 @@ def deployAction = ''
 def message = ''
 pipeline {
     agent any
-    properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '180', numToKeepStr: '15'))])
+    options([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '180', numToKeepStr: '15'))])
     stages {
         stage('Prepare') {
             steps {
