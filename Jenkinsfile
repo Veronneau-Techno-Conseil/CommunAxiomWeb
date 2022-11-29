@@ -59,7 +59,7 @@ pipeline {
             steps {
                 sh 'mkdir penv && python3 -m venv ./penv'
                 sh '. penv/bin/activate && pwd && ls -l && pip install -r ./build/requirements.txt && python3 ./build/processchart.py'
-                sh 'curl -k https://charts.vtck3s.lan/api/charts/comax-web/${chartVersion} | jq \'.name | "DEPLOY"\' > CHART_ACTION'
+                sh 'res=$(curl -k "https://charts.vtck3s.lan/api/charts/comax-web/0.1.10" )&& echo $res | jq \'if .name != null then .name else "DEPLOY" end\' > CHART_ACTION'
                 script {
                     chartAction = readFile('CHART_ACTION').replace('"','').trim()
                 }
@@ -103,8 +103,8 @@ pipeline {
                     sh 'helm dependency update ./helm --repository-config ${repos}'
                     sh 'helm list -n comaxws --output=json --kubeconfig $kubecfg > HELM_LIST'
                     sh 'cat HELM_LIST'
-                    sh 'jq \'select(.[].name == "comaxweb") | select(.[].status == "deployed") | "upgrade" \' HELM_LIST > DEPLOY_ACTION'
-                    sh 'jq \'select(.[].name == "comaxweb") | select(.[].status != "deployed") | "uninstall" \' HELM_LIST > SHOULD_UNINSTALL'
+                    sh 'jq \'.[] | select(.name == "comaxweb") | select(.status == "deployed") | "upgrade"\' HELM_LIST > DEPLOY_ACTION'
+                    sh 'jq \'.[] | select(.name == "comaxweb") | select(.status != "deployed") | "uninstall"\' HELM_LIST > SHOULD_UNINSTALL'
                     sh 'cat DEPLOY_ACTION && cat SHOULD_UNINSTALL'
                     script {
                         deployAction = readFile('DEPLOY_ACTION').replace('"','').trim()
