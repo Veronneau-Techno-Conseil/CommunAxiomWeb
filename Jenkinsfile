@@ -41,9 +41,12 @@ pipeline {
         }
         stage('Build') {
             steps {
-                sh 'if [ -z "$(docker buildx ls | grep multiarch)" ]; then docker buildx create --name multiarch --driver docker-container --use; else docker buildx use multiarch; fi'
-                sh "docker buildx build --push -t registry.vtck3s.lan/comaxweb:latest -t registry.vtck3s.lan/comaxweb:${patch} --platform linux/amd64,linux/arm64 -f Dockerfile ."
-                sh 'echo "Build registry.vtck3s.lan/comaxweb:${version} pushed to registry \n" >> SUMMARY'
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'dockerhub_creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                    sh 'if [ -z "$(docker buildx ls | grep multiarch)" ]; then docker buildx create --name multiarch --driver docker-container --use; else docker buildx use multiarch; fi'
+                    sh "docker login -u ${USERNAME} -p ${PASSWORD}"
+                    sh "docker buildx build --push -t vertechcon/comaxweb:latest -t vertechcon/comaxweb:${patch} --platform linux/amd64,linux/arm64 -f Dockerfile ."
+                    sh 'echo "Build vertechcon/comaxweb:${version} pushed to registry \n" >> SUMMARY'
+                }
             }
 
             post {
