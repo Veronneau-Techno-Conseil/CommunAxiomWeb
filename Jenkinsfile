@@ -22,10 +22,12 @@ pipeline {
                     // Get some code from a GitHub repository
                     git branch: '$BRANCH_NAME', url: 'https://github.com/Veronneau-Techno-Conseil/CommunAxiomWeb.git'
                 
-                    version = readFile('VERSION')
-                    chartVersion = readFile('./helm/VERSION')
+                    version = readFile('VERSION').trim()
+                    chartVersion = readFile('./helm/VERSION').trim()
                     patch = version.trim()
+                    buildEnvImage = 'vertechcon/comax-buildenv:1.0.1'
                 }
+                echo "$buildEnvImage"
             }
         }
         stage('Node compile') {
@@ -39,11 +41,8 @@ pipeline {
         }
         stage('Build') {
             steps {
-                script {
-                    def customImage = docker.build("registry.vtck3s.lan/comaxweb:latest")
-                    customImage.push()
-                    customImage.push(patch)
-                }
+                sh 'if [ -z "$(docker buildx ls | grep multiarch)" ]; then docker buildx create --name multiarch --driver docker-container --use; else docker buildx use multiarch; fi'
+                sh "docker buildx build --push -t registry.vtck3s.lan/comaxweb:latest -t registry.vtck3s.lan/comaxweb:${patch} --platform linux/amd64,linux/arm64 -f Dockerfile ."
                 sh 'echo "Build registry.vtck3s.lan/comaxweb:${version} pushed to registry \n" >> SUMMARY'
             }
 
@@ -56,6 +55,12 @@ pipeline {
             }
         }
         stage('Prep Helm') {
+            agent {
+                docker {
+                    image "$buildEnvImage"
+                    reuseNode true
+                }
+            }
             steps {
                 sh 'mkdir penv && python3 -m venv ./penv'
                 sh '. penv/bin/activate && pwd && ls -l && pip install -r ./build/requirements.txt && python3 ./build/processchart.py'
@@ -66,6 +71,12 @@ pipeline {
             }
         }
         stage('Helm') {
+            agent {
+                docker {
+                    image "$buildEnvImage"
+                    reuseNode true
+                }
+            }
             when{
                 expression {
                     return chartAction == "DEPLOY"
@@ -92,6 +103,12 @@ pipeline {
             }
         }
         stage('Prepare Application deployment') {
+            agent {
+                docker {
+                    image "$buildEnvImage"
+                    reuseNode true
+                }
+            }
             when{
                 expression {
                     return env.BRANCH_NAME.startsWith('release')
@@ -116,6 +133,12 @@ pipeline {
             }
         }
         stage('Uninstall Application deployment') {
+            agent {
+                docker {
+                    image "$buildEnvImage"
+                    reuseNode true
+                }
+            }
             when{
                 expression {
                     return env.BRANCH_NAME.startsWith('release') && shouldUninstall == 'uninstall'
@@ -128,6 +151,12 @@ pipeline {
             }
         }
         stage('Install Application deployment') {
+            agent {
+                docker {
+                    image "$buildEnvImage"
+                    reuseNode true
+                }
+            }
             when{
                 expression {
                     return env.BRANCH_NAME.startsWith('release') && deployAction != "upgrade"
@@ -141,6 +170,12 @@ pipeline {
             }
         }
         stage('Upgrade Application deployment') {
+            agent {
+                docker {
+                    image "$buildEnvImage"
+                    reuseNode true
+                }
+            }
             when{
                 expression {
                     return env.BRANCH_NAME.startsWith('release') && deployAction == "upgrade"
@@ -153,6 +188,12 @@ pipeline {
             }
         }
         stage('Finalize') {
+            agent {
+                docker {
+                    image "$buildEnvImage"
+                    reuseNode true
+                }
+            }
             steps {
                 script {
                     message = readFile('SUMMARY')
