@@ -18,7 +18,7 @@ hostOverride: mypublichost
 schemeOverride: https
 
 
-connstr: "Filename=/data/piranha.db"
+connstr: "server=;port=;database=;uid=;password="
 urls: "http://*:8080"
 
 serviceAccount:

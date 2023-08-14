@@ -86,7 +86,7 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
+                withCredentials([file(credentialsId: 'edgek3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
                     sh 'helm lint ./helm/'
                     sh 'helm repo update --repository-config ${repos}'
                     sh 'helm dependency update ./helm/ --repository-config ${repos}'
@@ -118,7 +118,7 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
+                withCredentials([file(credentialsId: 'edgek3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
                     sh 'helm repo update --repository-config ${repos}'
                     sh 'helm dependency update ./helm --repository-config ${repos}'
                     sh 'helm list -n comaxws --output=json --kubeconfig $kubecfg > HELM_LIST'
@@ -148,7 +148,7 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
+                withCredentials([file(credentialsId: 'edgek3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
                     sh 'helm -n comaxws uninstall comaxweb --kubeconfig ${kubecfg}'
                 }
             }
@@ -167,7 +167,7 @@ pipeline {
             }
             steps {
                 echo "Deploy action: ${deployAction}"
-                withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos'), file(credentialsId: 'comax_web_values', variable: 'comax_web_values')]) {
+                withCredentials([file(credentialsId: 'edgek3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos'), file(credentialsId: 'comax_web_values', variable: 'comax_web_values')]) {
                     sh 'helm -n comaxws install comaxweb ./helm/ --kubeconfig ${kubecfg} --repository-config ${repos} -f ${comax_web_values}'
                 }
             }
@@ -185,7 +185,7 @@ pipeline {
                 }
             }
             steps {
-                withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos'), file(credentialsId: 'comax_web_values', variable: 'comax_web_values')]) {
+                withCredentials([file(credentialsId: 'edgek3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos'), file(credentialsId: 'comax_web_values', variable: 'comax_web_values')]) {
                     sh 'helm -n comaxws upgrade comaxweb ./helm/ --kubeconfig ${kubecfg} --repository-config ${repos} -f ${comax_web_values}'
                 }
             }
