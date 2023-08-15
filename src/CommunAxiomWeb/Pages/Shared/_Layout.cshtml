@@ -1,4 +1,6 @@
+@using Microsoft.Extensions.Configuration;
 @using Piranha;
+@inject IConfiguration _config;
 <!doctype html>
 <html lang="en">
 <head>
@@ -21,10 +23,20 @@
 </head>
 @{
     var lang = Helper.SitemapHelper.GetBreadcrumbs(WebApp).FirstOrDefault();
+    var baseUrl = new Uri(WebApp.AbsoluteContentUrl("~/"));
     var home = WebApp.AbsoluteContentUrl("~/");
+    var ho = _config.GetValue<string>("HostOverride");
     if (lang != null && lang.Title == "en")
     {
         home = WebApp.AbsoluteContentUrl("~/en/welcome");
+    }
+    if (!string.IsNullOrWhiteSpace(ho))
+    {
+        var houri = new Uri($"https://{ho}/");
+        var u = new Uri(home);
+        u = baseUrl.MakeRelativeUri(u);
+        var uri = new Uri(houri, u);
+        home = uri.ToString();
     }
 }
 <body>
