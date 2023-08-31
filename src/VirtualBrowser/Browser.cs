@@ -1,13 +1,19 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using PuppeteerSharp;
 namespace VirtualBrowser
 {
     public class Browser: IBrowser
     {
         private readonly IMemoryCache _memoryCache;
-        public Browser(IMemoryCache cache)
+        private readonly ILogger _logger;
+        private readonly IConfiguration _configuration;
+        public Browser(IMemoryCache cache, ILogger<Browser> logger, IConfiguration configuration)
         {
             _memoryCache = cache;
+            _logger = logger;
+            _configuration = configuration;
         }
 
         public async Task<Metadata> GetMetadata(string url)
@@ -19,9 +25,11 @@ namespace VirtualBrowser
                     Headless = true
                 };
                 entry.SetAbsoluteExpiration(TimeSpan.FromDays(1));
-                Console.WriteLine("Downloading chromium");
-                using var browserFetcher = new BrowserFetcher();
-                await browserFetcher.DownloadAsync();
+                
+                if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("PUPPETEER_EXECUTABLE_PATH")))
+                {
+                    Environment.SetEnvironmentVariable("PUPPETEER_EXECUTABLE_PATH", _configuration["ChromePath"]);
+                }
 
                 using (var browser = await Puppeteer.LaunchAsync(options))
                 using (var page = await browser.NewPageAsync())

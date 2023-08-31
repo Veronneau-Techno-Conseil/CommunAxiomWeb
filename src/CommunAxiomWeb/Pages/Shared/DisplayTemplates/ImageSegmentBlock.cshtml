@@ -1,25 +1,34 @@
 @model CommunAxiomWeb.Extend.ImageSegmentBlock
+@{
+    var ancestirTileClass = "level-item tile is-ancestor";
+    if (Model.SetImageRight.Value)
+        ancestirTileClass += " is-flex-direction-row-reverse";
+    var size = "is-4";
+    switch (Model.ImageSize.Value)
+    {
+        case Extend.ImageSegmentBlock.eImageSize.xlarge:
+            size = "is-5";
+            break;
+        case Extend.ImageSegmentBlock.eImageSize.Large:
+            size = "is-4";
+            break;
+        case Extend.ImageSegmentBlock.eImageSize.Medium:
+            size = "is-3";
+            break;
+        case Extend.ImageSegmentBlock.eImageSize.Small:
+            size = "is-2";
+            break;
+    }
+}
 
-@if (Model.SetImageRight.Value)
-{
-    <div class="columns text-segment level-item">
-        <div class="column is-three-quarters">
-            <h1>@Model.Title</h1>
-            <p>@Html.Raw(Model.Body)</p>
+
+    <div class="@ancestirTileClass">
+        <div class="tile @size m-5">
+            <img src="@Url.Content(WebApp.Media.ResizeImage(Model.ImageField, 1110))" />
+        </div>
+        <div class="tile is-parent m-5 is-vertical">
+            <h1 class="tile">@Model.Title</h1>
+            <p class="tile">@Html.Raw(Model.Body)</p>
         </div>                                   
-        <div class="column is-one-quarter">
-            <img src="@Url.Content(WebApp.Media.ResizeImage(Model.ImageField, 1110))" />
-        </div>
     </div>
-}
-else{
-    <div class="columns text-segment level-item">
-        <div class="column is-one-quarter">
-            <img src="@Url.Content(WebApp.Media.ResizeImage(Model.ImageField, 1110))" />
-        </div>
-        <div class="column is-three-quarters">
-            <h1>@Model.Title</h1>
-            <p>@Html.Raw(Model.Body)</p>
-        </div>
-    </div>
-}
+

@@ -8448,3 +8448,11 @@ h4 {
 
 .lead {
   font-size: 1.2rem; }
+
+.tile img {
+  height: fit-content; }
+
+ul {
+  list-style: circle;
+  padding-left: 3em;
+  padding-right: 3em; }

@@ -6,8 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Piranha;
 using Piranha.AttributeBuilder;
-using Piranha.AspNetCore.Identity.SQLite;
-using Piranha.Data.EF.SQLite;
 using Piranha.Manager.Editor;
 using CommunAxiomWeb.Extend;
 using CommunAxiomWeb.Models;
@@ -17,6 +15,9 @@ using Amazon.S3;
 using System;
 using System.Linq;
 using VirtualBrowser;
+using Piranha.Data.EF.MySql;
+using Piranha.AspNetCore.Identity.MySQL;
+
 namespace CommunAxiomWeb
 {
     public class Startup
@@ -76,11 +77,17 @@ namespace CommunAxiomWeb
                 options.UseTinyMCE();
                 options.UseMemoryCache();
 
-                options.UseEF<SQLiteDb>(db => db.UseSqlite(_config.GetConnectionString("piranha")));
-                options.UseIdentityWithSeed<IdentitySQLiteDb>(db => db.UseSqlite(_config.GetConnectionString("piranha")));
+                //options.UseEF<SQLiteDb>(db => db.UseSqlite(_config.GetConnectionString("piranha")));
+                //options.UseIdentityWithSeed<IdentitySQLiteDb>(db => db.UseSqlite(_config.GetConnectionString("piranha")));
+
+                var connString = _config.GetConnectionString("mydb");
+                var v = ServerVersion.AutoDetect(connString);
+                options.UseEF<MySqlDb>(db => db.UseMySql(connString, v));
+                options.UseIdentityWithSeed<IdentityMySQLDb>(db => db.UseMySql(connString, v));
 
 
                 Piranha.App.Blocks.Register<RowBlock>();
+                Piranha.App.Blocks.Register<FlexibleBlock>();
                 Piranha.App.Blocks.Register<PostRow>();
                 Piranha.App.Blocks.Register<AuthorLink>();
                 Piranha.App.Blocks.Register<ImageSegmentBlock>();

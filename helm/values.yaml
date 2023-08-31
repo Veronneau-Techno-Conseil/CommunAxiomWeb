@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: registry.vtck3s.lan/comaxweb
+  repository: vertechcon/comaxweb
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -18,7 +18,7 @@ hostOverride: mypublichost
 schemeOverride: https
 
 
-connstr: "Filename=/data/piranha.db"
+connstr: "server=;port=;database=;uid=;password="
 urls: "http://*:8080"
 
 serviceAccount:

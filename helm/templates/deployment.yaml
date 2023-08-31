@@ -54,7 +54,7 @@ spec:
             - name: database
               mountPath: /data
           env:
-          - name: ConnectionStrings__piranha
+          - name: ConnectionStrings__mydb
             valueFrom:
               secretKeyRef:
                 name: {{ include "comax-web.awsSecretName" . }}

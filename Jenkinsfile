@@ -7,7 +7,9 @@ def deployAction = ''
 def message = ''
 pipeline {
     agent any
-
+    options {
+         buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '180', numToKeepStr: '15'))
+    }
     stages {
         stage('Prepare') {
             steps {
@@ -20,10 +22,12 @@ pipeline {
                     // Get some code from a GitHub repository
                     git branch: '$BRANCH_NAME', url: 'https://github.com/Veronneau-Techno-Conseil/CommunAxiomWeb.git'
                 
-                    version = readFile('VERSION')
-                    chartVersion = readFile('./helm/VERSION')
+                    version = readFile('VERSION').trim()
+                    chartVersion = readFile('./helm/VERSION').trim()
                     patch = version.trim()
+                    buildEnvImage = 'vertechcon/comax-buildenv:1.0.1'
                 }
+                echo "$buildEnvImage"
             }
         }
         stage('Node compile') {
@@ -37,12 +41,12 @@ pipeline {
         }
         stage('Build') {
             steps {
-                script {
-                    def customImage = docker.build("registry.vtck3s.lan/comaxweb:latest")
-                    customImage.push()
-                    customImage.push(patch)
+                withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId:'dockerhub_creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD']]) {
+                    sh 'if [ -z "$(docker buildx ls | grep multiarch)" ]; then docker buildx create --name multiarch --driver docker-container --use; else docker buildx use multiarch; fi'
+                    sh "docker login -u ${USERNAME} -p ${PASSWORD}"
+                    sh "docker buildx build --push -t vertechcon/comaxweb:latest -t vertechcon/comaxweb:${patch} --platform linux/amd64,linux/arm64 -f Dockerfile ."
+                    sh 'echo "Build vertechcon/comaxweb:${version} pushed to registry \n" >> SUMMARY'
                 }
-                sh 'echo "Build registry.vtck3s.lan/comaxweb:${version} pushed to registry \n" >> SUMMARY'
             }
 
             post {
@@ -54,23 +58,35 @@ pipeline {
             }
         }
         stage('Prep Helm') {
+            agent {
+                docker {
+                    image "$buildEnvImage"
+                    reuseNode true
+                }
+            }
             steps {
                 sh 'mkdir penv && python3 -m venv ./penv'
                 sh '. penv/bin/activate && pwd && ls -l && pip install -r ./build/requirements.txt && python3 ./build/processchart.py'
-                sh 'curl -k https://charts.vtck3s.lan/api/charts/comax-web/${chartVersion} | jq \'.name | "DEPLOY"\' > CHART_ACTION'
+                sh 'res=$(curl -k "https://charts.vtck3s.lan/api/charts/comax-web/0.1.10" )&& echo $res | jq \'if .name != null then .name else "DEPLOY" end\' > CHART_ACTION'
                 script {
                     chartAction = readFile('CHART_ACTION').replace('"','').trim()
                 }
             }
         }
         stage('Helm') {
+            agent {
+                docker {
+                    image "$buildEnvImage"
+                    reuseNode true
+                }
+            }
             when{
                 expression {
                     return chartAction == "DEPLOY"
                 }
             }
             steps {
-                withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
+                withCredentials([file(credentialsId: 'edgeadm', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
                     sh 'helm lint ./helm/'
                     sh 'helm repo update --repository-config ${repos}'
                     sh 'helm dependency update ./helm/ --repository-config ${repos}'
@@ -90,19 +106,25 @@ pipeline {
             }
         }
         stage('Prepare Application deployment') {
+            agent {
+                docker {
+                    image "$buildEnvImage"
+                    reuseNode true
+                }
+            }
             when{
                 expression {
                     return env.BRANCH_NAME.startsWith('release')
                 }
             }
             steps {
-                withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
+                withCredentials([file(credentialsId: 'edgeadm', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
                     sh 'helm repo update --repository-config ${repos}'
                     sh 'helm dependency update ./helm --repository-config ${repos}'
                     sh 'helm list -n comaxws --output=json --kubeconfig $kubecfg > HELM_LIST'
                     sh 'cat HELM_LIST'
-                    sh 'jq \'select(.[].name == "comaxweb") | select(.[].status == "deployed") | "upgrade" \' HELM_LIST > DEPLOY_ACTION'
-                    sh 'jq \'select(.[].name == "comaxweb") | select(.[].status != "deployed") | "uninstall" \' HELM_LIST > SHOULD_UNINSTALL'
+                    sh 'jq \'.[] | select(.name == "comaxweb") | select(.status == "deployed") | "upgrade"\' HELM_LIST > DEPLOY_ACTION'
+                    sh 'jq \'.[] | select(.name == "comaxweb") | select(.status != "deployed") | "uninstall"\' HELM_LIST > SHOULD_UNINSTALL'
                     sh 'cat DEPLOY_ACTION && cat SHOULD_UNINSTALL'
                     script {
                         deployAction = readFile('DEPLOY_ACTION').replace('"','').trim()
@@ -114,18 +136,30 @@ pipeline {
             }
         }
         stage('Uninstall Application deployment') {
+            agent {
+                docker {
+                    image "$buildEnvImage"
+                    reuseNode true
+                }
+            }
             when{
                 expression {
                     return env.BRANCH_NAME.startsWith('release') && shouldUninstall == 'uninstall'
                 }
             }
             steps {
-                withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
+                withCredentials([file(credentialsId: 'edgeadm', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
                     sh 'helm -n comaxws uninstall comaxweb --kubeconfig ${kubecfg}'
                 }
             }
         }
         stage('Install Application deployment') {
+            agent {
+                docker {
+                    image "$buildEnvImage"
+                    reuseNode true
+                }
+            }
             when{
                 expression {
                     return env.BRANCH_NAME.startsWith('release') && deployAction != "upgrade"
@@ -133,24 +167,36 @@ pipeline {
             }
             steps {
                 echo "Deploy action: ${deployAction}"
-                withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
-                    sh 'helm -n comaxws install comaxweb ./helm/ --kubeconfig ${kubecfg} --repository-config ${repos}'
+                withCredentials([file(credentialsId: 'edgeadm', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos'), file(credentialsId: 'comax_web_values', variable: 'comax_web_values')]) {
+                    sh 'helm -n comaxws install comaxweb ./helm/ --kubeconfig ${kubecfg} --repository-config ${repos} -f ${comax_web_values}'
                 }
             }
         }
         stage('Upgrade Application deployment') {
+            agent {
+                docker {
+                    image "$buildEnvImage"
+                    reuseNode true
+                }
+            }
             when{
                 expression {
                     return env.BRANCH_NAME.startsWith('release') && deployAction == "upgrade"
                 }
             }
             steps {
-                withCredentials([file(credentialsId: 'pdsk3s', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos')]) {
-                    sh 'helm -n comaxws upgrade comaxweb ./helm/ --kubeconfig ${kubecfg} --repository-config ${repos}'
+                withCredentials([file(credentialsId: 'edgeadm', variable: 'kubecfg'), file(credentialsId: 'helmrepos', variable: 'repos'), file(credentialsId: 'comax_web_values', variable: 'comax_web_values')]) {
+                    sh 'helm -n comaxws upgrade comaxweb ./helm/ --kubeconfig ${kubecfg} --repository-config ${repos} -f ${comax_web_values}'
                 }
             }
         }
         stage('Finalize') {
+            agent {
+                docker {
+                    image "$buildEnvImage"
+                    reuseNode true
+                }
+            }
             steps {
                 script {
                     message = readFile('SUMMARY')
