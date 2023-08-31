@@ -113,7 +113,7 @@ namespace CommunAxiomWeb.Hosting
                 {
                     ChangeFrequency = ChangeFrequency.Daily,
                     // If the Permalink contains an absolute Uri (e.g. redirection), don't prefix with the baseUrl
-                    Location = Uri.IsWellFormedUriString(item.Permalink, UriKind.Absolute) ? item.Permalink : baseUrl + item.Permalink,
+                    Location = Uri.IsWellFormedUriString(item.Permalink, UriKind.Absolute) ? item.Permalink : $"{baseUrl.TrimEnd('/')}/{item.Permalink.TrimStart('/')}" ,
                     Priority = item.MetaPriority,
                     TimeStamp = item.LastModified
                 });
